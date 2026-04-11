@@ -12,3 +12,8 @@ SRFormApp new
     targetObject: ClientHopital new;
     open.
 ```
+```st
+SRFormApp new
+    targetObject: Etudiant new;
+    open.
+```
