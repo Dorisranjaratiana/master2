@@ -2,7 +2,7 @@
 ```st
 Metacello new
 	baseline: 'TestSimpleRene';
-	repository: 'github://Dorisranjaratiana/prototype:master/src';
+	repository: 'https://github.com/Dorisranjaratiana/master2.git
 	load.
 ```
 
