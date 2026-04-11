@@ -8,5 +8,7 @@ Metacello new
 
 # Utilisation
 ```st
-SRFormApp new open
+SRFormApp new
+    targetObject: ClientHopital new;
+    open.
 ```
