@@ -1,9 +1,9 @@
 # Installation 
 ```st
 Metacello new
-	baseline: 'TestSimpleRene';
-	repository: 'https://github.com/Dorisranjaratiana/master2.git
-	load.
+    baseline: 'AXPL';
+    repository: 'github://Dorisranjaratiana/master2:master/src';
+    load.
 ```
 
 # Utilisation
