@@ -119,15 +119,12 @@ AXPLSpecVisitor >> visitNumberDescription: aDescription [
     currentLevel := presenter levelDropList selectedItem.
     explicabilityText := aDescription commentFor: currentLevel.
 
-    input := presenter newTextInput.
+    input := presenter newNumberInput.
     numValue := targetObject perform: aDescription accessor.
-    input text: (numValue ifNil: [ '0' ] ifNotNil: [ numValue asString ]).
+    input number: (numValue ifNil: [ 0 ]).
     
-    "Utilisation de la syntaxe standard Pharo"
-    input whenTextChangedDo: [ :txt | 
-        | converted |
-        converted := [ txt asNumber ] on: Error do: [ 0 ].
-        targetObject perform: aDescription accessor asMutator with: converted ].
+    input whenNumberChangedDo: [ :num | 
+        targetObject perform: aDescription accessor asMutator with: num ].
 
     label := presenter newLabel label: aDescription label.
     label help: (explicabilityText isString ifTrue: [ explicabilityText ] ifFalse: [ '' ]).
