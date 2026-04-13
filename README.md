@@ -1,4 +1,8 @@
-# Installation 
+# Framework AXΨL — Gouvernance Adaptative des Interfaces
+
+Framework Low-Code pour la gouvernance native des interfaces adaptatives intelligentes.
+
+## Chargement en une ligne (Pharo 13) 
 ```st
 Metacello new
     baseline: 'AXPL';
