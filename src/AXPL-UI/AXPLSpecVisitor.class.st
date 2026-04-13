@@ -91,14 +91,9 @@ AXPLSpecVisitor >> visitDateDescription: aDescription [
     currentLevel := presenter levelDropList selectedItem.
     explicabilityText := aDescription commentFor: currentLevel.
 
-    input := presenter newTextInput.
-    input placeholder: 'JJ/MM/AAAA'.
+    input := SpDatePresenter new.
     dateValue := targetObject perform: aDescription accessor.
-    input text: (dateValue ifNil: [ '' ] ifNotNil: [ dateValue asString ]).
-    
-    input whenTextChangedDo: [ :txt | 
-        [ targetObject perform: aDescription accessor asMutator with: txt asDate ] 
-            on: Error do: [ :ex | "Ignore" ] ].
+    input date: (dateValue ifNil: [ Date today ] ifNotNil: [ dateValue ]).
 
     label := presenter newLabel label: aDescription label.
     label help: (explicabilityText isString ifTrue: [ explicabilityText ] ifFalse: [ '' ]).

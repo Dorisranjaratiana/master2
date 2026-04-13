@@ -146,7 +146,7 @@ SRFormApp >> initializeWindow: aWindowPresenter [
     super initializeWindow: aWindowPresenter.
     aWindowPresenter
         title: 'Framework {A,X,Ψ,L}';
-        initialExtent: 800 @ 900.
+        initialExtent: 500 @ 950.
 ]
 
 { #category : 'accessing' }

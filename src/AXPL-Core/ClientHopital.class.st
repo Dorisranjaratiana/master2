@@ -22,7 +22,10 @@ Class {
 		'allergies',
 		'antecedents',
 		'diagnostic',
-		'traitement'
+		'traitement',
+		'medecinReferent',
+		'statutSortie',
+		'contactUrgence'
 	],
 	#category : 'AXPL-Core',
 	#package : 'AXPL-Core'
@@ -31,9 +34,10 @@ Class {
 { #category : 'description' }
 ClientHopital class >> descriptionForAXPL [
 	| container |
-	container := SRPriorityContainer new label: 'Dossier Médical AXPL'.
+	container := SRPriorityContainer new label: 'Dossier Médical Unifié AXPL'.
 	
-	"--- NIVEAU SIMPLE ---"
+	"=== SECTION 1 : IDENTITÉ DU PATIENT (Niveau Simple) ==="
+	
 	container add: (SRStringDescription new 
 		label: 'Nom'; 
 		accessor: #nom; 
@@ -54,6 +58,16 @@ ClientHopital class >> descriptionForAXPL [
 			at: #expert put: 'Variable de désambiguïsation dans les protocoles d''identification.';
 			yourself)).
 
+	container add: (SRNumberDescription new 
+		label: 'Âge'; 
+		accessor: #age; 
+		level: #simple; "Passé en simple car essentiel à l'identité"
+		comment: (Dictionary new 
+			at: #simple put: 'Votre âge actuel.';
+			at: #base   put: 'Indicateur pour déclencher des alertes spécifiques (pédiatrie/gériatrie).';
+			at: #expert put: 'Facteur de risque démographique utilisé pour l''analyse prédictive.';
+			yourself)).
+
 	container add: (SRSelectionDescription new 
 		label: 'Sexe'; 
 		accessor: #sexe; 
@@ -65,6 +79,8 @@ ClientHopital class >> descriptionForAXPL [
 			at: #expert put: 'Indicateur métabolique pilotant les algorithmes de pharmacocinétique.';
 			yourself)).
 
+	"=== SECTION 2 : ÉTAT CLINIQUE & URGENCE (Niveau Expert/Base) ==="
+
 	container add: (SRBooleanDescription new 
 		label: 'Urgent'; 
 		accessor: #isUrgent; 
@@ -75,15 +91,55 @@ ClientHopital class >> descriptionForAXPL [
 			at: #expert put: 'Variable prioritaire pilotant l''ordonnancement de la file d''attente.';
 			yourself)).
 
-	"--- NIVEAU BASE ---"
-	container add: (SRNumberDescription new 
-		label: 'Âge'; 
-		accessor: #age; 
+	container add: (SRStringDescription new 
+		label: 'Allergies'; 
+		accessor: #allergies; 
+		level: #expert;
+		comment: (Dictionary new 
+			at: #simple put: 'Substances qui vous rendent malade.';
+			at: #base   put: 'Sécurité alimentaire et médicamenteuse de premier niveau.';
+			at: #expert put: 'Donnée critique : Analyse des risques d''anaphylaxie (Sécurité Patient).';
+			yourself)).
+
+	container add: (SRStringDescription new 
+		label: 'Diagnostic'; 
+		accessor: #diagnostic; 
+		level: #expert;
+		comment: (Dictionary new 
+			at: #base   put: 'La conclusion médicale sur votre état.';
+			at: #expert put: 'Interprétation clinique protégée par le secret professionnel.';
+			yourself)).
+
+	container add: (SRStringDescription new 
+		label: 'Traitement'; 
+		accessor: #traitement; 
+		level: #expert;
+		comment: (Dictionary new 
+			at: #simple put: 'Les médicaments que vous devez prendre.';
+			at: #base   put: 'Plan de soins pour la dispensation infirmière.';
+			at: #expert put: 'Instructions pharmacologiques actives soumises à prescription.';
+			yourself)).
+
+	container add: (SRStringDescription new 
+		label: 'Antécédents'; 
+		accessor: #antecedents; 
+		level: #expert;
+		comment: (Dictionary new 
+			at: #base   put: 'Vos anciennes maladies ou opérations.';
+			at: #expert put: 'Historique clinique utilisé pour l''interprétation des symptômes actuels.';
+			yourself)).
+
+	"=== SECTION 3 : SUIVI HOSPITALIER (Niveau Base) ==="
+
+	container add: (SRSelectionDescription new 
+		label: 'Médecin Référent'; 
+		accessor: #medecinReferent; 
+		options: #('Dr. Martin' 'Dr. Lefebvre' 'Dr. Traoré');
 		level: #base;
 		comment: (Dictionary new 
-			at: #simple put: 'Votre âge actuel.';
-			at: #base   put: 'Indicateur pour déclencher des alertes spécifiques (pédiatrie/gériatrie).';
-			at: #expert put: 'Facteur de risque démographique utilisé pour l''analyse prédictive.';
+			at: #simple put: 'Le nom de votre docteur.';
+			at: #base   put: 'Praticien hospitalier responsable de votre suivi.';
+			at: #expert put: 'Responsable légal du protocole thérapeutique et de la validation clinique.';
 			yourself)).
 
 	container add: (SRDateDescription new 
@@ -104,6 +160,8 @@ ClientHopital class >> descriptionForAXPL [
 			at: #expert put: 'Donnée de localisation pour la traçabilité des soins de proximité.';
 			yourself)).
 
+	"=== SECTION 4 : ADMINISTRATIF & CONTACT (Niveau Base/Expert) ==="
+
 	container add: (SRStringDescription new 
 		label: 'Téléphone'; 
 		accessor: #telephone; 
@@ -111,6 +169,16 @@ ClientHopital class >> descriptionForAXPL [
 		comment: (Dictionary new 
 			at: #base   put: 'Numéro pour vous joindre ou joindre vos proches.';
 			at: #expert put: 'Canal de communication primaire pour la coordination post-hospitalière.';
+			yourself)).
+
+	container add: (SRStringDescription new 
+		label: 'Contact d''Urgence'; 
+		accessor: #contactUrgence; 
+		level: #base;
+		comment: (Dictionary new 
+			at: #simple put: 'La personne à appeler si besoin.';
+			at: #base   put: 'Coordonnées de la personne ressource (proche ou famille).';
+			at: #expert put: 'Désignation du tiers de confiance selon le cadre légal (Loi Kouchner).';
 			yourself)).
 
 	container add: (SRStringDescription new 
@@ -122,43 +190,15 @@ ClientHopital class >> descriptionForAXPL [
 			at: #expert put: 'Vérification des droits pour la validation du circuit de facturation.';
 			yourself)).
 
-	"--- NIVEAU EXPERT ---"
-	container add: (SRStringDescription new 
-		label: 'Allergies'; 
-		accessor: #allergies; 
+	container add: (SRSelectionDescription new 
+		label: 'Statut de Sortie'; 
+		accessor: #statutSortie; 
+		options: #('En cours' 'Sortie autorisée' 'Transfert' 'Décès');
 		level: #expert;
 		comment: (Dictionary new 
-			at: #simple put: 'Substances qui vous rendent malade.';
-			at: #base   put: 'Sécurité alimentaire et médicamenteuse de premier niveau.';
-			at: #expert put: 'Donnée critique : Analyse des risques d''anaphylaxie (Sécurité Patient).';
-			yourself)).
-
-	container add: (SRStringDescription new 
-		label: 'Antécédents'; 
-		accessor: #antecedents; 
-		level: #expert;
-		comment: (Dictionary new 
-			at: #base   put: 'Vos anciennes maladies ou opérations.';
-			at: #expert put: 'Historique clinique utilisé pour l''interprétation des symptômes actuels.';
-			yourself)).
-
-	container add: (SRStringDescription new 
-		label: 'Diagnostic'; 
-		accessor: #diagnostic; 
-		level: #expert;
-		comment: (Dictionary new 
-			at: #base   put: 'La conclusion médicale sur votre état.';
-			at: #expert put: 'Interprétation clinique protégée par le secret professionnel.';
-			yourself)).
-
-	container add: (SRStringDescription new 
-		label: 'Traitement'; 
-		accessor: #traitement; 
-		level: #expert;
-		comment: (Dictionary new 
-			at: #simple put: 'Les médicaments que vous devez prendre.';
-			at: #base   put: 'Plan de soins pour la dispensation infirmière.';
-			at: #expert put: 'Instructions pharmacologiques actives soumises à prescription.';
+			at: #simple put: 'Votre état de présence à l''hôpital.';
+			at: #base   put: 'Situation administrative du séjour.';
+			at: #expert put: 'Indicateur de flux patient pour la gestion de la capacité litière.';
 			yourself)).
 
 	^ container
@@ -210,6 +250,18 @@ ClientHopital >> assurance [
 ClientHopital >> assurance: anObject [
 
 	assurance := anObject
+]
+
+{ #category : 'accessing' }
+ClientHopital >> contactUrgence [
+
+	^ contactUrgence
+]
+
+{ #category : 'accessing' }
+ClientHopital >> contactUrgence: anObject [
+
+	contactUrgence := anObject
 ]
 
 { #category : 'accessing' }
@@ -266,6 +318,18 @@ ClientHopital >> isUrgent: anObject [
 ]
 
 { #category : 'accessing' }
+ClientHopital >> medecinReferent [
+
+	^ medecinReferent
+]
+
+{ #category : 'accessing' }
+ClientHopital >> medecinReferent: anObject [
+
+	medecinReferent := anObject
+]
+
+{ #category : 'accessing' }
 ClientHopital >> nom [
 
 	^ nom
@@ -311,6 +375,18 @@ ClientHopital >> sexe [
 ClientHopital >> sexe: anObject [
 
 	sexe := anObject
+]
+
+{ #category : 'accessing' }
+ClientHopital >> statutSortie [
+
+	^ statutSortie
+]
+
+{ #category : 'accessing' }
+ClientHopital >> statutSortie: anObject [
+
+	statutSortie := anObject
 ]
 
 { #category : 'accessing' }
