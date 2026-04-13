@@ -145,7 +145,7 @@ scrollablePresenter layout: SpBoxLayout newVertical.
 SRFormApp >> initializeWindow: aWindowPresenter [
     super initializeWindow: aWindowPresenter.
     aWindowPresenter
-        title: 'Framework AXPL - Moteur Adaptatif';
+        title: 'Framework {A,X,Ψ,L}';
         initialExtent: 800 @ 900.
 ]
 
