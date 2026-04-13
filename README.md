@@ -1,4 +1,4 @@
-# Framework AXΨL — Gouvernance Adaptative des Interfaces
+# Framework AXΨL - Gouvernance Adaptative des Interfaces
 
 Framework Low-Code pour la gouvernance native des interfaces adaptatives intelligentes.
 
@@ -10,7 +10,7 @@ Metacello new
     load.
 ```
 
-# Utilisation
+## Utilisation
 ```st
 SRFormApp new
     targetObject: ClientHopital new;
@@ -24,28 +24,28 @@ SRFormApp new
 ## Architecture
 
 Le framework intègre quatre dimensions :
-- **A** — Adaptation intelligente (AXPLFormBuilder)
-- **X** — Explicabilité native (SRDescription)
-- **Ψ** — Réflexivité actionnable (AXPLReflexivityEngine)
-- **L** — Accessibilité Low-Code (SRFormApp)
+- **A** - Adaptation intelligente (AXPLFormBuilder)
+- **X** - Explicabilité native (SRDescription)
+- **Ψ** - Réflexivité actionnable (AXPLReflexivityEngine)
+- **L** - Accessibilité Low-Code (SRFormApp)
 
 ## Packages
 
-- `AXPL-Descriptions` — Méta-description
-- `AXPL-Core` — Moteurs A et Ψ
-- `AXPL-UI` — Interface L
-- `AXPL-Tests` — 8 tests unitaires
+- `AXPL-Descriptions` - Méta-description
+- `AXPL-Core` - Moteurs A et Ψ
+- `AXPL-UI` - Interface L
+- `AXPL-Tests` - 8 tests unitaires
 
 ## Licence
 
-MIT License — voir fichier LICENSE.
+MIT License - voir fichier LICENSE.
 
 ## Inspirations
 
 La couche de méta-description est inspirée de 
 [SimpleRene](https://github.com/pharo-contributions/SimpleRene) 
-— Ducasse et al., MIT License.
+- Ducasse et al., MIT License.
 
 ## Auteur
 
-RANJARATIANA Doris Michel — ENI Fianarantsoa — 2026
+RANJARATIANA Doris Michel - ENI Fianarantsoa - 2026
