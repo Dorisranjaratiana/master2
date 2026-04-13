@@ -26,7 +26,8 @@ SRPriorityContainer >> add: aDescription [
 
 { #category : 'adding' }
 SRPriorityContainer >> addAll: aCollection [
-	aCollection do: [ :each | self add: each ]
+
+	self addAll: (aCollection collect: [ :each | each ])
 ]
 
 { #category : 'accessing' }

@@ -227,12 +227,6 @@ SRFormApp >> targetObject [
 ]
 
 { #category : 'accessing' }
-SRFormApp >> targetObject1: anObject [
-
-	targetObject := anObject
-]
-
-{ #category : 'accessing' }
 SRFormApp >> targetObject: anObject [
     targetObject := anObject.
     "UNE SEULE FOIS — jamais recréé"

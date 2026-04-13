@@ -12,6 +12,7 @@ Class {
 	#instVars : [
 		'label',
 		'accessor',
+		'level',
 		'properties',
 		'comment'
 	],
