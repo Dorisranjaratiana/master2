@@ -54,7 +54,7 @@ SRFormApp >> defaultLayout [
             add: levelDropList expand: true;
             yourself) expand: false;
         add: generateButton expand: false;
-        add: (SpScrollableLayout with: scrollablePresenter) expand: true;
+        add: formContainer expand: true;
         add: actionBar expand: false;
         yourself
 ]
@@ -99,30 +99,24 @@ SRFormApp >> initialize [
 { #category : 'initialization' }
 SRFormApp >> initializePresenters [
     statusLabel := self newLabel label: 'Prêt'.
-
     levelDropList := self newDropList
         items: #( #simple #base #expert );
         display: [ :item | item asString capitalized ].
-
     generateButton := self newButton
         label: 'Générer';
         icon: (self iconNamed: #refresh);
         action: [ self updateInterface ].
-
     formContainer := self newPresenter.
     formContainer layout: SpBoxLayout newVertical.
-
-	scrollablePresenter := SpPresenter new.
+    scrollablePresenter := SpPresenter new.
 scrollablePresenter layout: SpBoxLayout newVertical.
-
     psiButton := self newButton label: ''; yourself.
-    
+
     traceButton := self newButton
         label: 'Trace Ψ';
         icon: (self iconNamed: #smallInfo);
         action: [ self showTrace ];
         yourself.
-
     actionBar := self newPresenter.
     actionBar layout: (SpBoxLayout newHorizontal
         spacing: 8;
@@ -229,13 +223,11 @@ SRFormApp >> targetObject [
 { #category : 'accessing' }
 SRFormApp >> targetObject: anObject [
     targetObject := anObject.
-    "UNE SEULE FOIS — jamais recréé"
-    metaContainer := anObject class descriptionForAXPL.
+    metaContainer := targetObject class descriptionForAXPL.
     psiEngine := AXPLReflexivityEngine new
         metaContainer: metaContainer;
         yourself.
-    (levelDropList notNil and: [ psiButton notNil ])
-        ifTrue: [ self updateInterface ].
+    self updateInterface.
 ]
 
 { #category : 'accessing' }
@@ -252,75 +244,93 @@ SRFormApp >> traceButton: anObject [
 
 { #category : 'updating' }
 SRFormApp >> updateInterface [
-	| builder visibleDescs hidden visitor newLayout |
-	targetObject ifNil: [ ^ self ].
+    | builder visibleDescs hidden visitor newLayout |
+    targetObject ifNil: [ ^ self ].
 
-	"① — Filtrage adaptatif"
-	builder := AXPLFormBuilder new
-		targetObject: targetObject;
-		userLevel: levelDropList selectedItem;
-		metaContainer: metaContainer;
-		yourself.
-	visibleDescs := builder build.
+    "① Filtrage adaptatif (A)"
+    builder := AXPLFormBuilder new
+        targetObject: targetObject;
+        userLevel: levelDropList selectedItem;
+        metaContainer: metaContainer;
+        yourself.
+    visibleDescs := builder build.
 
-	"⑧ — Statut"
-	statusLabel label: levelDropList selectedItem asString capitalized
-		, ' Formulaire pour ' , targetObject class name.
+    "Titre contextuel"
+    statusLabel label: levelDropList selectedItem asString capitalized
+        , ' Formulaire pour ' , targetObject class name.
 
-	"Ψ et Trace visibles seulement en expert"
-	levelDropList selectedItem = #expert
-		ifTrue: [
-			traceButton visible: true.
-			psiButton
-				label: 'Ψ — Intercession';
-				enabled: true;
-				action: [
-					| index ancienLabel nouveauLabel currentLabels |
-					currentLabels := metaContainer children collect: [ :d | d label ].
-					index := UIManager default
-						chooseFrom: currentLabels
-						title: 'Ψ — Choisir le champ à modifier'.
-					(index notNil and: [ index > 0 ]) ifTrue: [
-						ancienLabel := currentLabels at: index.
-						nouveauLabel := UIManager default
-							request: 'Nouveau label pour "' , ancienLabel , '" :'
-							initialAnswer: ancienLabel.
-						(nouveauLabel notNil and: [ nouveauLabel notEmpty ])
-							ifTrue: [
-								"④ Intercession"
-								psiEngine relabelDescription: ancienLabel
-								          to: nouveauLabel.
-								"⑤ Synchronisation"
-								psiEngine updateExplanation: nouveauLabel
-								          forLevel: #expert
-								          with: 'Modifié par Ψ le '
-								               , DateAndTime now printString.
-								"⑥ → ⑦ → ⑧"
-								self updateInterface ] ] ] ]
-		ifFalse: [
-			traceButton visible: false.
-			psiButton
-				label: '';
-				enabled: false;
-				action: [] ].
+    "Ψ — visible seulement en expert"
+    levelDropList selectedItem = #expert
+        ifTrue: [
+            traceButton visible: true.
+            psiButton
+                label: 'Ψ — Réflexivité';
+                enabled: true;
+                action: [
+                    | index ancienLabel currentLabels choix |
+                    currentLabels := metaContainer children
+                        collect: [ :d | d label ].
+                    index := UIManager default
+                        chooseFrom: currentLabels
+                        title: 'Ψ — Choisir le champ à modifier'.
+                    (index notNil and: [ index > 0 ]) ifTrue: [
+                        ancienLabel := currentLabels at: index.
+                        choix := UIManager default
+                            chooseFrom: #( 'Changer le niveau' 'Modifier' )
+                            title: 'Ψ — Que voulez-vous modifier ?'.
 
-	"⑦ — Génération widgets"
-	visitor := AXPLSpecVisitor new
-		targetObject: targetObject;
-		presenter: self.
-	newLayout := visitor visit: visibleDescs.
+                        choix = 1 ifTrue: [
+                            | niveauChoix niveaux nouveauNiveau |
+                            niveaux := #( 'simple' 'base' 'expert' ).
+                            niveauChoix := UIManager default
+                                chooseFrom: niveaux
+                                title: 'Ψ — Nouveau niveau pour "' , ancienLabel , '"'.
+                            (niveauChoix notNil and: [ niveauChoix > 0 ]) ifTrue: [
+                                nouveauNiveau := (niveaux at: niveauChoix) asSymbol.
+                                psiEngine setLevel: nouveauNiveau ofDescription: ancienLabel.
+                                self inform:
+                                    'Ψ appliqué : "' , ancienLabel
+                                    , '" → niveau #' , nouveauNiveau
+                                    , String cr
+                                    , 'Horodatage : ' , DateAndTime now printString.
+                                self updateInterface ] ].
 
-	"② — Champs cachés"
-	hidden := metaContainer children
-		reject: [ :d | builder canUserSee: d ].
-	hidden do: [ :d |
-		| expl |
-		expl := d commentFor: levelDropList selectedItem.
-		newLayout add: (self newButton
-			icon: (self iconNamed: #help);
-			label: d label;
-			action: [ self inform: (expl ifNil: [ 'Accès restreint.' ]) ])
-			expand: false ].
+                        choix = 2 ifTrue: [
+                            | nouveauLabel |
+                            nouveauLabel := UIManager default
+                                request: 'Nouveau label pour "' , ancienLabel , '" :'
+                                initialAnswer: ancienLabel.
+                            (nouveauLabel notNil and: [ nouveauLabel notEmpty ]) ifTrue: [
+                                psiEngine relabelDescription: ancienLabel to: nouveauLabel.
+                                self inform:
+                                    'Ψ : "' , ancienLabel , '" → "' , nouveauLabel , '".'
+                                    , String cr
+                                    , 'Horodatage : ' , DateAndTime now printString.
+                                self updateInterface ] ] ] ] ]
+        ifFalse: [
+            traceButton visible: false.
+            psiButton
+                label: '';
+                enabled: false;
+                action: [ ] ].
 
-	scrollablePresenter layout: newLayout.
+    "⑦ Génération widgets (L)"
+    visitor := AXPLSpecVisitor new
+        targetObject: targetObject;
+        presenter: self.
+    newLayout := visitor visit: visibleDescs.
+
+    "② Champs masqués avec explication (X)"
+    hidden := metaContainer children
+        reject: [ :d | builder canUserSee: d ].
+    hidden do: [ :d |
+        | expl |
+        expl := d commentFor: levelDropList selectedItem.
+        newLayout add: (self newButton
+            icon: (self iconNamed: #help);
+            label: d label , ' (masqué)';
+            action: [ self inform: (expl ifNil: [ 'Accès restreint.' ]) ])
+            expand: false ].
+
+    formContainer layout: newLayout.
 ]

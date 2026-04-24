@@ -27,14 +27,15 @@ AXPLFormBuilder >> build [
 
 { #category : 'testing' }
 AXPLFormBuilder >> canUserSee: aDescription [
-	"L'Expert voit absolument tout"
-	userLevel == #expert ifTrue: [ ^ true ].
-	
-	"Le niveau Base voit le Simple et le Base, mais pas l'Expert"
-	userLevel == #base ifTrue: [ ^ aDescription level ~= #expert ].
-	
-	"Le niveau Simple (Stagiaire) ne voit QUE le niveau Simple"
-	^ aDescription level == #simple
+    "L'Expert voit absolument tout"
+    userLevel = #expert ifTrue: [ ^ true ].
+    
+    "Le niveau Base voit Simple et Base"
+    userLevel = #base ifTrue: [ ^ aDescription level = #base 
+        or: [ aDescription level = #simple ] ].
+    
+    "Le niveau Simple voit uniquement Simple"
+    ^ aDescription level = #simple
 ]
 
 { #category : 'filtre' }

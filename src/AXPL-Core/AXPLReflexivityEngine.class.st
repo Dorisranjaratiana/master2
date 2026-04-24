@@ -20,6 +20,7 @@ Class {
 
 { #category : 'initialization' }
 AXPLReflexivityEngine >> initialize [
+    super initialize.
     traceLog := OrderedCollection new.
 ]
 
@@ -44,6 +45,18 @@ AXPLReflexivityEngine >> relabelDescription: oldLabel to: newLabel [
         traceLog add: (Association
             key: DateAndTime now
             value: ('Rename: ' , oldLabel , ' → ' , newLabel)) ].
+]
+
+{ #category : 'initialization' }
+AXPLReflexivityEngine >> setLevel: aNewLevel ofDescription: aLabel [
+    | desc |
+    desc := metaContainer children
+        detect: [ :d | d label = aLabel ]
+        ifNone: [ ^ self ].
+    desc level: aNewLevel.
+    traceLog add: (Association
+        key: DateAndTime now
+        value: 'Level: ' , aLabel , ' → ' , aNewLevel asString).
 ]
 
 { #category : 'accessing' }
