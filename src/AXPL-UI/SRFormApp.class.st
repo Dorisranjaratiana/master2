@@ -109,9 +109,8 @@ SRFormApp >> initializePresenters [
     formContainer := self newPresenter.
     formContainer layout: SpBoxLayout newVertical.
     scrollablePresenter := SpPresenter new.
-scrollablePresenter layout: SpBoxLayout newVertical.
+    scrollablePresenter layout: SpBoxLayout newVertical.
     psiButton := self newButton label: ''; yourself.
-
     traceButton := self newButton
         label: 'Trace Ψ';
         icon: (self iconNamed: #smallInfo);
@@ -123,7 +122,7 @@ scrollablePresenter layout: SpBoxLayout newVertical.
         add: (self newButton
             label: 'Annuler';
             icon: (self iconNamed: #smallCancel);
-            action: [ self inform: 'Annulé.' ];
+            action: [ self resetInterface ];
             yourself) expand: true;
         add: psiButton expand: true;
         add: traceButton expand: true;
@@ -133,6 +132,7 @@ scrollablePresenter layout: SpBoxLayout newVertical.
             action: [ self inform: 'Enregistré !' ];
             yourself) expand: true;
         yourself).
+ actionBar visible: false.
 ]
 
 { #category : 'initialization' }
@@ -191,6 +191,20 @@ SRFormApp >> psiEngine: anObject [
 	psiEngine := anObject
 ]
 
+{ #category : 'initialization' }
+SRFormApp >> resetInterface [
+    metaContainer := targetObject class descriptionForAXPL.
+    psiEngine := AXPLReflexivityEngine new
+        metaContainer: metaContainer;
+        yourself.
+    formContainer layout: SpBoxLayout newVertical.
+    statusLabel label: 'Sélectionnez un niveau et cliquez sur Générer.'.
+    levelDropList selectIndex: 1.
+    actionBar visible: false.
+   actionBar visible: false.
+    self update.
+]
+
 { #category : 'accessing' }
 SRFormApp >> showTrace [
     | log text |
@@ -227,7 +241,6 @@ SRFormApp >> targetObject: anObject [
     psiEngine := AXPLReflexivityEngine new
         metaContainer: metaContainer;
         yourself.
-    self updateInterface.
 ]
 
 { #category : 'accessing' }
@@ -278,7 +291,6 @@ SRFormApp >> updateInterface [
                         choix := UIManager default
                             chooseFrom: #( 'Changer le niveau' 'Modifier' )
                             title: 'Ψ — Que voulez-vous modifier ?'.
-
                         choix = 1 ifTrue: [
                             | niveauChoix niveaux nouveauNiveau |
                             niveaux := #( 'simple' 'base' 'expert' ).
@@ -294,7 +306,6 @@ SRFormApp >> updateInterface [
                                     , String cr
                                     , 'Horodatage : ' , DateAndTime now printString.
                                 self updateInterface ] ].
-
                         choix = 2 ifTrue: [
                             | nouveauLabel |
                             nouveauLabel := UIManager default
@@ -333,4 +344,6 @@ SRFormApp >> updateInterface [
             expand: false ].
 
     formContainer layout: newLayout.
+    actionBar visible: true.
+    self update.
 ]

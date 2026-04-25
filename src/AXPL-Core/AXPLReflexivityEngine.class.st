@@ -42,6 +42,11 @@ AXPLReflexivityEngine >> relabelDescription: oldLabel to: newLabel [
     desc := self readDescription: oldLabel.
     desc ifNotNil: [
         desc label: newLabel.
+        desc comment: (
+            'Champ : ' , newLabel
+            , ' | Niveau : ' , desc level asString
+            , ' | Modifié par Ψ le : ' , DateAndTime now printString
+            , ' | Ancien label : ' , oldLabel).
         traceLog add: (Association
             key: DateAndTime now
             value: ('Rename: ' , oldLabel , ' → ' , newLabel)) ].
